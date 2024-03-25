@@ -57,7 +57,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
                 PhotonNetwork.JoinRandomRoom();
                 PhotonNetwork.JoinOrCreateRoom();
                 PhotonNetwork.JoinRandomOrCreateRoom();*/
-        PhotonNetwork.JoinRandomOrCreateRoom();
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 20; // 입장가능한 최대 플레이어수
+        roomOptions.IsVisible = true; // 로비에서 방 목록에 노출할 것인가?
+        roomOptions.IsOpen = true;
+
+        PhotonNetwork.JoinOrCreateRoom("test",roomOptions, TypedLobby.Default);
     }
     public override void OnCreatedRoom()
     {
@@ -87,6 +92,5 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
     {
         base.OnJoinRoomFailed(returnCode, message);
         Debug.Log("Join 실패!");
-
     }
 }
