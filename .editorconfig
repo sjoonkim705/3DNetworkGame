@@ -1,0 +1,12 @@
+root = true
+
+[*]
+charset = utf-8
+
+int
+
+string
+
+float
+
+bool
