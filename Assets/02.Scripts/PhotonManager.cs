@@ -75,6 +75,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
         Debug.Log("방 join 성공!");
         Debug.Log($"RoomName: {PhotonNetwork.CurrentRoom.Name}");
         Debug.Log($"Current Players: {PhotonNetwork.CurrentRoom.PlayerCount}");
+
+        PhotonNetwork.Instantiate("Character", Vector3.zero, Quaternion.identity);
     }
     public override void OnCreateRoomFailed(short returnCode, string message)
     {

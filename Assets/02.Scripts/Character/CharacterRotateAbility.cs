@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,17 +10,28 @@ public class CharacterRotateAbility : CharacterAbility
     // 누적할 x각도
     private float _mx = 0;
     private float _my = 0;
+
     private float _mouseX;
     private float _mouseY;
     public Transform CameraRoot;
 
     private void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        if (_owner.PhotonView.IsMine)
+        {
+            GameObject.FindWithTag("FollowCamera").GetComponent<CinemachineVirtualCamera>().Follow = CameraRoot;
+        }
+
+        //GameObject.FindWithTag("FollowCamera").GetComponent<CinemachineVirtualCamera>().Follow = CameraRoot;
+
     }
     private void Update()
     {
+        if (!_owner.PhotonView.IsMine)
+        {
+            return;
+        }
+
         _mouseX = Input.GetAxis("Mouse X");
         _mouseY = Input.GetAxis("Mouse Y");
 

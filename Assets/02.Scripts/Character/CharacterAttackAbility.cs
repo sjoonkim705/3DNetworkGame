@@ -16,9 +16,8 @@ public class CharacterAttackAbility : CharacterAbility
     // 준수 전략
     // - 기존에 클래스로 해결할 수 없다면 새로운 클래스를 구현
     // 
-
+    public float StaminaConsumeFactor = 20f;
     private float _attackTimer = 0;
-    //public float CoolTime = 1.0f;
     private Animator _animator;
     void Start()
     {
@@ -27,12 +26,18 @@ public class CharacterAttackAbility : CharacterAbility
 
     void Update()
     {
+        if (!_owner.PhotonView.IsMine)
+        {
+            return;
+        }
         if (_attackTimer < _owner.Stat.AttackCoolTime)
         {
             _attackTimer += Time.deltaTime;
         }
-        if (Input.GetMouseButtonDown(0) && _attackTimer > _owner.Stat.AttackCoolTime)
+        bool haveStamina = (_owner.Stat.Stamina >= StaminaConsumeFactor);
+        if (Input.GetMouseButtonDown(0) && _attackTimer > _owner.Stat.AttackCoolTime && haveStamina)
         {
+            _owner.Stat.Stamina -= StaminaConsumeFactor;
             int animationRandFactor = Random.Range(0, 3);
             if (animationRandFactor == 0)
             {
