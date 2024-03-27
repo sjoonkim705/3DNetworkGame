@@ -14,12 +14,15 @@ public class CharacterRotateAbility : CharacterAbility
     private float _mouseX;
     private float _mouseY;
     public Transform CameraRoot;
+    private MinimapCamera _minimapCamera;
 
     private void Start()
     {
         if (_owner.PhotonView.IsMine)
         {
             GameObject.FindWithTag("FollowCamera").GetComponent<CinemachineVirtualCamera>().Follow = CameraRoot;
+            _minimapCamera = GameObject.FindWithTag("MinimapCamera").GetComponent<MinimapCamera>();
+            _minimapCamera.Target = transform;
         }
 
         //GameObject.FindWithTag("FollowCamera").GetComponent<CinemachineVirtualCamera>().Follow = CameraRoot;
@@ -42,7 +45,6 @@ public class CharacterRotateAbility : CharacterAbility
 
         _my = Mathf.Clamp(_my, -45f, 15f);
         transform.eulerAngles = new Vector3(0f, _mx, 0);
-        //Debug.Log(_mx);
         CameraRoot.localEulerAngles = new Vector3(-_my, 0, 0);
 
     }

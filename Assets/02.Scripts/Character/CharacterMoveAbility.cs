@@ -15,10 +15,14 @@ public class CharacterMoveAbility : CharacterAbility
 
     public float JumpPower = 3f;
 
+    public int JumpMaxCount = 2;
+    private int _jumpRemainCount;
+
     private bool _isJumping = false;
    // private int JumpMaxCount = 2;
    // private int JumpRemainCount;
     private bool _isFalling = false;
+    private bool _isSprintMode = false;
 
     public float StaminaConsumeFactor = 10f;
     public float StaminaRecoveryFactor = 5f;
@@ -43,13 +47,13 @@ public class CharacterMoveAbility : CharacterAbility
         _animator = GetComponent<Animator>();
  
     }
+    private void Start()
+    {
+        _jumpRemainCount = JumpMaxCount;
+    }
 
     private void Update()
     {
-        // 순서
-        // 1. 사용자의 키보드 입력을 받는다.
-        // 2. 캐릭터가 바라보는 방향을 기준으로 방향을 설정한다.
-        // 3. 이동 속도에 따라 그 방향으로 이동한다.
         if (!_owner.PhotonView.IsMine)
         {
             return;
@@ -59,8 +63,6 @@ public class CharacterMoveAbility : CharacterAbility
         _dir = new Vector3(h, 0, v);             // 로컬 좌표꼐 (나만의 동서남북) 
         float unNormalizedDir = _dir.magnitude;
 
-
-        
         _animator.SetFloat("MoveSpeed", _currentSpeed * unNormalizedDir);
 
         _dir.Normalize();
@@ -76,31 +78,48 @@ public class CharacterMoveAbility : CharacterAbility
         {
             _isFalling = true;
         }
+        else if (_characterController.isGrounded)
+        {
+            _jumpRemainCount = JumpMaxCount;
+        }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && _jumpRemainCount > 0)
         {
-            _animator.SetTrigger("Jump");
+            _jumpRemainCount--;
+            if (_jumpRemainCount > 0)
+            {
+                _animator.SetTrigger("Jump");
+            }
+            else
+            {
+                _animator.SetTrigger("DoubleJump");
+            }
             _yVelocity = JumpPower;
-            //_isJumping = true;
-            // JumpRemainCount--;
+            _isJumping = true;
         }
-        if (!_characterController.isGrounded && !_isJumping)
-        {
-            _isFalling = true;
-        }
-    }
-    private void FixedUpdate()
-    {
         _currentSpeed = _owner.Stat.MoveSpeed;
+
         if (Input.GetKey(KeyCode.LeftShift) && _owner.Stat.Stamina > 0)
         {
             _currentSpeed = _owner.Stat.RunSpeed;
-            _owner.Stat.Stamina -= Time.fixedDeltaTime * StaminaConsumeFactor;
+            if (_dir.magnitude > 0)
+            {
+                _owner.Stat.Stamina -= Time.deltaTime * StaminaConsumeFactor;
+            }
         }
         else
         {
-            _owner.Stat.Stamina += Time.fixedDeltaTime * StaminaRecoveryFactor;
+            _owner.Stat.Stamina += Time.deltaTime * StaminaRecoveryFactor;
         }
+
+    }
+    private void FixedUpdate()
+    {        // 순서
+        // 1. 사용자의 키보드 입력을 받는다.
+        // 2. 캐릭터가 바라보는 방향을 기준으로 방향을 설정한다.
+        // 3. 이동 속도에 따라 그 방향으로 이동한다.
+   
+
 
     }
 }

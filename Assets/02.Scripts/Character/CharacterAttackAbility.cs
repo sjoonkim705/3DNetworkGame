@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,10 @@ public class CharacterAttackAbility : CharacterAbility
     public float StaminaConsumeFactor = 20f;
     private float _attackTimer = 0;
     private Animator _animator;
+    public Collider WeaponCollider;
+    public TrailRenderer WeaponTrail;
+
+
     void Start()
     {
         _animator = GetComponent<Animator>();
@@ -38,21 +43,52 @@ public class CharacterAttackAbility : CharacterAbility
         if (Input.GetMouseButtonDown(0) && _attackTimer > _owner.Stat.AttackCoolTime && haveStamina)
         {
             _owner.Stat.Stamina -= StaminaConsumeFactor;
-            int animationRandFactor = Random.Range(0, 3);
-            if (animationRandFactor == 0)
-            {
-                _animator.SetTrigger("Attack1");
-            }
-            else if (animationRandFactor == 1)
-            {
-                _animator.SetTrigger("Attack2");
-            }
-            else if (animationRandFactor == 2)
-            {
-                _animator.SetTrigger("Attack3");
-            }
+            _owner.PhotonView.RPC(nameof(PlayAttackAnimation), RpcTarget.All, Random.Range(1, 4));
+            // RpcTarget.All : 모두에게
+            // RpcTarget.Others : 나자신 제외 모두에게
+            // RpcTarget.Master : 방장에게만
             _attackTimer = 0;
         }
     }
 
+    [PunRPC]
+    public void PlayAttackAnimation(int index)
+    {
+        //int animationRandFactor = Random.Range(1, 4);
+        _animator.SetTrigger($"Attack{index}");
+
+    }
+    public void OnTriggerEnter(Collider other)
+    {
+        // 0: 개방 폐쇄 원칙 + 인터페이스
+        // 수정에는 닫혀있고ㅓ, 확장에는 열려있다.
+        if (!_owner.PhotonView.IsMine || other.transform == transform)
+        {
+            return;
+        }
+        IDamaged damageableObject = other.GetComponent<IDamaged>();
+        if (damageableObject != null)
+        {
+            PhotonView photonView = other.GetComponent<PhotonView>();
+            if (photonView != null)
+            {
+                photonView.RPC("Damaged", RpcTarget.All, _owner.Stat.Damage);
+
+            }
+            // damageableObject?.Damaged(_owner.Stat.Damage);
+           
+        }
+    }
+    public void ActiveCollider()
+    {
+        WeaponTrail.Clear();
+        WeaponCollider.enabled = true;
+        WeaponTrail.enabled = true;
+
+    }
+    public void InactiveCollider()
+    {
+        WeaponCollider.enabled = false;
+        WeaponTrail.enabled = false;
+    }
 }

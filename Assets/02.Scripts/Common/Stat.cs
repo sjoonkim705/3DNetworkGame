@@ -64,13 +64,13 @@ public class Stat
     public float RotationSpeed;
 
     [Header("Attack Stats")]
+    public int Damage;
     public float AttackCoolTime;
 
     public void Init()
     {
         Health = MaxHealth;
         Stamina = MaxStamina;
-        Debug.Log(Health);
-        Debug.Log(Stamina);
+
     }
 }
