@@ -17,11 +17,14 @@ public class CharacterAttackAbility : CharacterAbility
     // 준수 전략
     // - 기존에 클래스로 해결할 수 없다면 새로운 클래스를 구현
     // 
-    public float StaminaConsumeFactor = 20f;
+    public float StaminaConsumeFactor = 10f;
     private float _attackTimer = 0;
     private Animator _animator;
     public Collider WeaponCollider;
     public TrailRenderer WeaponTrail;
+
+    private List<IDamaged> _damagedList = new List<IDamaged>();
+
 
 
     void Start()
@@ -69,10 +72,17 @@ public class CharacterAttackAbility : CharacterAbility
         IDamaged damageableObject = other.GetComponent<IDamaged>();
         if (damageableObject != null)
         {
+            if (_damagedList.Contains(damageableObject))
+            {
+                return;
+            }
+            _damagedList.Add(damageableObject);
+
+
             PhotonView photonView = other.GetComponent<PhotonView>();
             if (photonView != null)
-            {
-                photonView.RPC("Damaged", RpcTarget.All, _owner.Stat.Damage);
+            { 
+                photonView.RPC("Damaged", RpcTarget.All, _owner.Stat.Damage, transform.position);
 
             }
             // damageableObject?.Damaged(_owner.Stat.Damage);
@@ -90,5 +100,6 @@ public class CharacterAttackAbility : CharacterAbility
     {
         WeaponCollider.enabled = false;
         WeaponTrail.enabled = false;
+        _damagedList.Clear();
     }
 }

@@ -14,19 +14,23 @@ public class MinimapCamera : MonoBehaviour
     }
     void LateUpdate()
     {
-        if (Target != null && UI_CharacterStat.Instance.MyCharacter.PhotonView.IsMine)
+        if (Target != null)
         {
-            Vector3 targetPosition = Target.position;
+            if (UI_CharacterStat.Instance.MyCharacter.PhotonView.IsMine)
+            {
+                Vector3 targetPosition = Target.position;
 
-            transform.position = targetPosition;
-            targetPosition.y = Ydistance;
-            transform.position = targetPosition;
+                transform.position = targetPosition;
+                targetPosition.y = Ydistance;
+                transform.position = targetPosition;
 
 
-            Vector3 targetEulerAngles = Target.eulerAngles;
-            targetEulerAngles.x = _initialEulerAngles.x;
-            targetEulerAngles.z = _initialEulerAngles.z;
-            transform.eulerAngles = targetEulerAngles;
+                Vector3 targetEulerAngles = Target.eulerAngles;
+                targetEulerAngles.x = _initialEulerAngles.x;
+                targetEulerAngles.z = _initialEulerAngles.z;
+                transform.eulerAngles = targetEulerAngles;
+            }
+        
         }
     }
 

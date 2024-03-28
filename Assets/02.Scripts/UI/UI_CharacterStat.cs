@@ -13,6 +13,8 @@ public class UI_CharacterStat : MonoBehaviour
 
     public Slider HealthSlider;
     public Slider StaminaSlider;
+    public Image DamageScreen;
+
     private void Awake()
     {
         Instance = this;

@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,6 @@ public struct DamageInfo
         this.Amount = amount;
         this.Position = Vector3.zero;
         this.Normal = Vector3.zero;
-
     }
+
 }
