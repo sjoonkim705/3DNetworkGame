@@ -41,6 +41,9 @@ MonoBehaviour:
   - RespawnSpaceship
   - PlayAttackAnimation
   - Damaged
+  - Respawn_Coroutine
+  - MovetoRespawnPosition
+  - TeleportCharacter
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

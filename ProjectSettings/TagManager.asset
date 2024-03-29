@@ -6,6 +6,7 @@ TagManager:
   tags:
   - FollowCamera
   - MinimapCamera
+  - RespawnSpots
   layers:
   - Default
   - TransparentFX

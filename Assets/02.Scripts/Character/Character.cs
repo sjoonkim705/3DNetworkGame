@@ -1,18 +1,28 @@
 using Cinemachine;
 using Photon.Pun;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.UI.GridLayoutGroup;
+public enum CharacterStatus
+{
+    Playing,
+    Dead,
+}
 
 [RequireComponent(typeof(CharacterMoveAbility))]
 [RequireComponent(typeof(CharacterRotateAbility))]
 [RequireComponent(typeof(CharacterAttackAbility))]
 [RequireComponent(typeof(CharacterCanvasAbility))]
 [RequireComponent(typeof(CharacterShakeAbility))]
+[RequireComponent(typeof(Animator))]
+
 
 public class Character : MonoBehaviour, IPunObservable, IDamaged
 {
     public Stat Stat;
+    public bool IsDead;
     public PhotonView PhotonView { get; private set; }
 
     private Vector3 _recievedPosition;
@@ -21,13 +31,17 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private CinemachineImpulseSource _impulseSource;
     private GameObject _damageScreen;
     private CharacterShakeAbility _modelMovement;
+    private Animator _animator;
+    private CharacterController _controller;
 
 
     private void Start()
     {
+        _controller = GetComponent<CharacterController>();
         _impulseSource = GetComponent<CinemachineImpulseSource>();
         _damageScreen = UI_CharacterStat.Instance.DamageScreen.gameObject;
         _modelMovement = GetComponent<CharacterShakeAbility>();
+        _animator = GetComponent<Animator>();
     }
 
     // 데이터 동기화를 위해 데이터 전송 및 수신 기능을 가진 약속
@@ -72,28 +86,61 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     }
     private void Update()
     {
-        /*        if (!PhotonView.IsMine)
-                {
-                    transform.position = Vector3.Lerp(transform.position, _recievedPosition, Time.deltaTime * 20f);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, _recievedRotation, Time.deltaTime * 20f);
-                }*/
+
         if (Input.GetKeyDown(KeyCode.P))
         {
             //  ShowDamageEffectUI();
-            _modelMovement.Shake();
-
+            Damaged(500, Vector3.zero);
         }
+
     }
     [PunRPC]
     public void Damaged(int amount, Vector3 attackOrigin)
     {
+        Stat.Health -= amount;
         if (PhotonView.IsMine)
         {
-            Stat.Health -= amount;
+
             PhotonNetwork.Instantiate("DamageEffect", _weapon.transform.position, Quaternion.identity);
             ShowDamageEffectUI();
             StartCoroutine(_modelMovement.ShakeCharacter_Coroutine());
         }
+        if (Stat.Health <= 0)
+        {
+            Die();
+        }
+    }
+    public void Die()
+    {
+        IsDead = true;
+        _animator.SetBool("Die", true);
+        GetComponent<CharacterAttackAbility>().enabled = false;
+        GetComponent<CharacterMoveAbility>().enabled = false;
+        GetComponent<CharacterRotateAbility>().enabled = false;
+        StartCoroutine(Respawn_Coroutine(5f));
+    }
+
+    [PunRPC]
+    private IEnumerator Respawn_Coroutine(float respawnTime)
+    {
+        yield return new WaitForSeconds(respawnTime);
+        IsDead = false;
+        _animator.SetBool("Die", false);
+        Stat.Init();
+        GetComponent<CharacterAttackAbility>().enabled = true;
+        GetComponent<CharacterMoveAbility>().enabled = true;
+        GetComponent<CharacterRotateAbility>().enabled = true;
+        TeleportCharacter(CharacterRespawnSpot.Instance.GetRandomRespawnSpot().position);
+    }
+
+    [PunRPC]
+    public void TeleportCharacter(Vector3 respawnSpot)
+    {
+        _controller.enabled = false;
+        transform.position = (respawnSpot);
+        _controller.enabled = true;
+        Debug.Log(transform.position);
+        Debug.Log(respawnSpot);
     }
     public void ShowDamageEffectUI()
     {
