@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,8 +20,8 @@ public class CharacterMoveAbility : CharacterAbility
     private int _jumpRemainCount;
 
     private bool _isJumping = false;
-   // private int JumpMaxCount = 2;
-   // private int JumpRemainCount;
+    // private int JumpMaxCount = 2;
+    // private int JumpRemainCount;
     private bool _isFalling = false;
     private bool _isSprintMode = false;
 
@@ -45,7 +46,7 @@ public class CharacterMoveAbility : CharacterAbility
 
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
- 
+
     }
     private void Start()
     {
@@ -54,10 +55,11 @@ public class CharacterMoveAbility : CharacterAbility
 
     private void Update()
     {
-        if (!_owner.PhotonView.IsMine)
+        if (!_owner.PhotonView.IsMine || _owner.State == State.Death)
         {
             return;
         }
+
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         _dir = new Vector3(h, 0, v);             // 로컬 좌표꼐 (나만의 동서남북) 
@@ -112,14 +114,9 @@ public class CharacterMoveAbility : CharacterAbility
             _owner.Stat.Stamina += Time.deltaTime * StaminaRecoveryFactor;
         }
 
-    }
-    private void FixedUpdate()
-    {        // 순서
-        // 1. 사용자의 키보드 입력을 받는다.
-        // 2. 캐릭터가 바라보는 방향을 기준으로 방향을 설정한다.
-        // 3. 이동 속도에 따라 그 방향으로 이동한다.
-   
-
 
     }
+
 }
+
+

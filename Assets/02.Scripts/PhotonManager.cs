@@ -13,6 +13,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
     { 
         instance = this;
     }
+
     private void Start()
     {
         // 연결을 하고싶다.
@@ -82,8 +83,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
         Debug.Log("방 join 성공!");
         Debug.Log($"RoomName: {PhotonNetwork.CurrentRoom.Name}");
         Debug.Log($"Current Players: {PhotonNetwork.CurrentRoom.PlayerCount}");
-
-        PhotonNetwork.Instantiate("Character", CharacterRespawnSpot.Instance.GetRandomRespawnSpot().position, Quaternion.identity);
+        // PhotonNetwork.Instantiate("Character", BattleScene.Instance.GetRandomRespawnSpot().position, Quaternion.Euler(randomAngle));
+        PhotonNetwork.Instantiate("Character", Vector3.zero, Quaternion.identity);
     }
     public override void OnCreateRoomFailed(short returnCode, string message)
     {

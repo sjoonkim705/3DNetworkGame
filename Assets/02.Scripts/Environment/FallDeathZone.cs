@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FallDieZone : MonoBehaviour
+public class FallDeathZone : MonoBehaviour
 {
     private Collider _dieZoneCollider;
     private void Awake()
@@ -12,7 +12,7 @@ public class FallDieZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("DieZone");
+        Debug.Log("DeathZone");
         other.GetComponent<Character>().Die();
     }
 }

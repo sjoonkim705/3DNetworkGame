@@ -30,7 +30,7 @@ public class CharacterRotateAbility : CharacterAbility
     }
     private void Update()
     {
-        if (!_owner.PhotonView.IsMine)
+        if (!_owner.PhotonView.IsMine || _owner.State == State.Death)
         {
             return;
         }
@@ -46,6 +46,14 @@ public class CharacterRotateAbility : CharacterAbility
         _my = Mathf.Clamp(_my, -45f, 15f);
         transform.eulerAngles = new Vector3(0f, _mx, 0);
         CameraRoot.localEulerAngles = new Vector3(-_my, 0, 0);
+
+    }
+
+    public void SetRotation(Vector3 targetAngle)
+    {
+        Debug.Log(targetAngle.y);
+        _mx = targetAngle.y;
+        _my = 0;
 
     }
 

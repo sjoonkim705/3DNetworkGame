@@ -34,10 +34,11 @@ public class CharacterAttackAbility : CharacterAbility
 
     void Update()
     {
-        if (!_owner.PhotonView.IsMine)
+        if (!_owner.PhotonView.IsMine || _owner.State == State.Death)
         {
             return;
         }
+
         if (_attackTimer < _owner.Stat.AttackCoolTime)
         {
             _attackTimer += Time.deltaTime;
@@ -82,7 +83,7 @@ public class CharacterAttackAbility : CharacterAbility
             PhotonView photonView = other.GetComponent<PhotonView>();
             if (photonView != null)
             { 
-                photonView.RPC("Damaged", RpcTarget.All, _owner.Stat.Damage, transform.position);
+                photonView.RPC("Damaged", RpcTarget.All, _owner.Stat.Damage, _owner.PhotonView.OwnerActorNr);
 
             }
             // damageableObject?.Damaged(_owner.Stat.Damage);

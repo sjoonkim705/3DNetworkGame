@@ -5,11 +5,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.UI.GridLayoutGroup;
-public enum CharacterStatus
-{
-    Playing,
-    Dead,
-}
 
 [RequireComponent(typeof(CharacterMoveAbility))]
 [RequireComponent(typeof(CharacterRotateAbility))]
@@ -22,7 +17,7 @@ public enum CharacterStatus
 public class Character : MonoBehaviour, IPunObservable, IDamaged
 {
     public Stat Stat;
-    public bool IsDead;
+    public State State { get; private set; } = State.Alive;
     public PhotonView PhotonView { get; private set; }
 
     private Vector3 _recievedPosition;
@@ -35,6 +30,21 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private CharacterController _controller;
 
 
+    // 데이터 동기화를 위해 데이터 전송 및 수신 기능을 가진 약속
+    private void Awake()
+    {
+        PhotonView = GetComponent<PhotonView>();
+        if (PhotonView.IsMine)
+        {
+            UI_CharacterStat.Instance.MyCharacter = this;
+            Stat.OnHealthChanged += UI_CharacterStat.Instance.RefreshHealthUI;
+            Stat.OnStaminaChanged += UI_CharacterStat.Instance.RefreshStaminaUI;
+            Stat.Init();
+        }
+        _weapon = GetComponentInChildren<Weapon>();
+    }
+  
+
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
@@ -42,9 +52,24 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         _damageScreen = UI_CharacterStat.Instance.DamageScreen.gameObject;
         _modelMovement = GetComponent<CharacterShakeAbility>();
         _animator = GetComponent<Animator>();
+
+        SetRandomPointAndRotation();
     }
 
-    // 데이터 동기화를 위해 데이터 전송 및 수신 기능을 가진 약속
+    private void Update()
+    {
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            //  ShowDamageEffectUI();
+            Damaged(500, 1234);
+        }
+    }
+    [PunRPC]
+    public void AddLog(string logMessage)
+    {
+        UI_Roominfo.instance.AddLog(logMessage);
+    }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -71,76 +96,88 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         }
         // info는 송수신 성공/실패 여부에 대한 메시지가 담겨있다.
     }
-    private void Awake()
-    {
-        PhotonView = GetComponent<PhotonView>();
-        if (PhotonView.IsMine)
-        {
-            UI_CharacterStat.Instance.MyCharacter = this;
-            Stat.OnHealthChanged += UI_CharacterStat.Instance.RefreshHealthUI;
-            Stat.OnStaminaChanged += UI_CharacterStat.Instance.RefreshStaminaUI;
-            Stat.Init();
-        }
-        _weapon = GetComponentInChildren<Weapon>();
 
-    }
-    private void Update()
-    {
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            //  ShowDamageEffectUI();
-            Damaged(500, Vector3.zero);
-        }
-
-    }
     [PunRPC]
-    public void Damaged(int amount, Vector3 attackOrigin)
+    public void Damaged(int amount, int actorNumber)
     {
+        if (State == State.Death)
+        {
+            return;
+        }
+
         Stat.Health -= amount;
         if (PhotonView.IsMine)
         {
-
             PhotonNetwork.Instantiate("DamageEffect", _weapon.transform.position, Quaternion.identity);
             ShowDamageEffectUI();
             StartCoroutine(_modelMovement.ShakeCharacter_Coroutine());
         }
         if (Stat.Health <= 0)
         {
-            Die();
+            State = State.Death;
+            if (PhotonView.IsMine)
+            {
+                OnDeath(actorNumber);
+
+            }
+            PhotonView.RPC(nameof(Die), RpcTarget.All);
+
         }
-    }
-    public void Die()
-    {
-        IsDead = true;
-        _animator.SetBool("Die", true);
-        GetComponent<CharacterAttackAbility>().enabled = false;
-        GetComponent<CharacterMoveAbility>().enabled = false;
-        GetComponent<CharacterRotateAbility>().enabled = false;
-        StartCoroutine(Respawn_Coroutine(5f));
+
     }
 
     [PunRPC]
+    public void Die()
+    {
+        State = State.Death;
+
+        Debug.Log("Die");
+        _animator.SetTrigger("Death");
+        GetComponent<CharacterAttackAbility>().InactiveCollider();
+        if (PhotonView.IsMine)
+        {
+            _controller.enabled = false;
+            StartCoroutine(Respawn_Coroutine(5f));
+        }
+    }
+    private void OnDeath(int actorNumber)
+    {
+        if (actorNumber >= 0)
+        {
+            string nickname = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).NickName;
+            string logMessage = $"{nickname}님이 {PhotonView.Owner.NickName}을 처치하였습니다.\n";
+            PhotonView.RPC(nameof(AddLog), RpcTarget.All, logMessage);
+        }
+        else
+        {
+            string logMessage = $"{PhotonView.Owner.NickName}이 운명을 다했습니다.\n";
+            PhotonView.RPC(nameof(AddLog), RpcTarget.All, logMessage);
+        }
+    }
+
     private IEnumerator Respawn_Coroutine(float respawnTime)
     {
         yield return new WaitForSeconds(respawnTime);
-        IsDead = false;
-        _animator.SetBool("Die", false);
+
+        SetRandomPointAndRotation();
+        _controller.enabled = true;
+        PhotonView.RPC(nameof(Resurrect),RpcTarget.All);
+
+    }
+    [PunRPC]
+    private void Resurrect()
+    {
+        State = State.Alive;
         Stat.Init();
-        GetComponent<CharacterAttackAbility>().enabled = true;
-        GetComponent<CharacterMoveAbility>().enabled = true;
-        GetComponent<CharacterRotateAbility>().enabled = true;
-        TeleportCharacter(CharacterRespawnSpot.Instance.GetRandomRespawnSpot().position);
+        _animator.SetTrigger("Resurrection");
     }
 
-    [PunRPC]
-    public void TeleportCharacter(Vector3 respawnSpot)
+    private void SetRandomPointAndRotation()
     {
-        _controller.enabled = false;
-        transform.position = (respawnSpot);
-        _controller.enabled = true;
-        Debug.Log(transform.position);
-        Debug.Log(respawnSpot);
+        BattleScene.Instance.TeleportCharacter(gameObject, BattleScene.Instance.GetRandomRespawnSpot().position);
+
+        Vector3 randomRotation = new Vector3(0, Random.Range(0, 360), 0);
+        GetComponent<CharacterRotateAbility>().SetRotation(randomRotation);
     }
     public void ShowDamageEffectUI()
     {
