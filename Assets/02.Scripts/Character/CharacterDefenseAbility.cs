@@ -15,5 +15,9 @@ public class CharacterDefenseAbility : MonoBehaviour
         {
             _animator.SetBool("Guard", true);
         }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            _animator.SetBool("Guard", false);
+        }    
     }
 }

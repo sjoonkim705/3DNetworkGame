@@ -25,7 +25,7 @@ public class CharacterCanvasAbility : CharacterAbility
         // 빌보드 코드 구현
         if (!_owner.PhotonView.IsMine)
         {
-            transform.forward = Camera.main.transform.forward;
+            Canvas.transform.forward = Camera.main.transform.forward;
         }
     }
     public void RefreshHealthUI()

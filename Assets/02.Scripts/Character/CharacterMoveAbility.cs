@@ -88,7 +88,7 @@ public class CharacterMoveAbility : CharacterAbility
         _dir.x *= _currentSpeed;
         _dir.z *= _currentSpeed;
 
-        _characterController.Move(_dir * Time.deltaTime);
+        _characterController.Move(_dir *Time.deltaTime);
 
         if (!_characterController.isGrounded && !_isJumping)
         {

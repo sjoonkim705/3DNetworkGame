@@ -1336,10 +1336,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a981368409d47d4d8ea674ae788b8c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  JumpPower: 10
   JumpMaxCount: 2
   StaminaConsumeFactor: 10
-  JumpStaminaConsumeFactor: 20
   StaminaRecoveryFactor: 5
 --- !u!114 &1138608114150288165
 MonoBehaviour:

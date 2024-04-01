@@ -49,6 +49,9 @@ MonoBehaviour:
   - AddLog
   - Resurrect
   - PlayJumpAttack
+  - MakeItem
+  - Create
+  - Delete
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -104,7 +104,7 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         {
             return;
         }
-
+    
         Stat.Health -= amount;
         StartCoroutine(_modelMovement.ShakeCharacter_Coroutine());
         if (PhotonView.IsMine)
@@ -117,30 +117,36 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         }
         if (Stat.Health <= 0)
         {
-            State = State.Death;
+           // State = State.Death;
             if (PhotonView.IsMine)
             {
                 OnDeath(actorNumber);
-
             }
             PhotonView.RPC(nameof(Die), RpcTarget.All);
-
         }
-
     }
 
     [PunRPC]
     public void Die()
     {
+        if (State == State.Death)
+        {
+            return;
+        }
+
         State = State.Death;
         _animator.SetTrigger("Death");
         GetComponent<CharacterAttackAbility>().InactiveCollider();
         if (PhotonView.IsMine)
         {
+            ItemObjectFactory.Instance.RequestCreate(ItemType.HealthPotion, transform.position);
+            ItemObjectFactory.Instance.RequestCreate(ItemType.StaminaPotion, transform.position);
+
             _controller.enabled = false;
             StartCoroutine(Respawn_Coroutine(RespawnTime));
         }
     }
+
     private void OnDeath(int actorNumber)
     {
         if (actorNumber >= 0)
@@ -163,7 +169,6 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         SetRandomPointAndRotation();
         _controller.enabled = true;
         PhotonView.RPC(nameof(Resurrect),RpcTarget.All);
-
     }
     [PunRPC]
     private void Resurrect()
