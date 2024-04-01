@@ -34,24 +34,25 @@ public class CharacterRotateAbility : CharacterAbility
         {
             return;
         }
+  
+            _mouseX = Input.GetAxis("Mouse X");
+            _mouseY = Input.GetAxis("Mouse Y");
 
-        _mouseX = Input.GetAxis("Mouse X");
-        _mouseY = Input.GetAxis("Mouse Y");
+
+            Vector3 rotationDir = new Vector3(_mouseX, _mouseY, 0);
+            _mx += rotationDir.x * _owner.Stat.RotationSpeed * Time.deltaTime;
+            _my += rotationDir.y * _owner.Stat.RotationSpeed * Time.deltaTime;
+
+            _my = Mathf.Clamp(_my, -45f, 15f);
+            transform.eulerAngles = new Vector3(0f, _mx, 0);
+            CameraRoot.localEulerAngles = new Vector3(-_my, 0, 0);
 
 
-        Vector3 rotationDir = new Vector3(_mouseX, _mouseY, 0);
-        _mx += rotationDir.x * _owner.Stat.RotationSpeed * Time.deltaTime;
-        _my += rotationDir.y * _owner.Stat.RotationSpeed * Time.deltaTime;
-
-        _my = Mathf.Clamp(_my, -45f, 15f);
-        transform.eulerAngles = new Vector3(0f, _mx, 0);
-        CameraRoot.localEulerAngles = new Vector3(-_my, 0, 0);
 
     }
 
     public void SetRotation(Vector3 targetAngle)
     {
-        Debug.Log(targetAngle.y);
         _mx = targetAngle.y;
         _my = 0;
 

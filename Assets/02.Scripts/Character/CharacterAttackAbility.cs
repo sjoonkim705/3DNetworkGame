@@ -1,5 +1,5 @@
 using Photon.Pun;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +22,8 @@ public class CharacterAttackAbility : CharacterAbility
     private Animator _animator;
     public Collider WeaponCollider;
     public TrailRenderer WeaponTrail;
+    private CharacterMoveAbility _moveAbility;
+
 
     private List<IDamaged> _damagedList = new List<IDamaged>();
 
@@ -30,6 +32,8 @@ public class CharacterAttackAbility : CharacterAbility
     void Start()
     {
         _animator = GetComponent<Animator>();
+        _moveAbility = GetComponent<CharacterMoveAbility>();
+
     }
 
     void Update()
@@ -44,17 +48,26 @@ public class CharacterAttackAbility : CharacterAbility
             _attackTimer += Time.deltaTime;
         }
         bool haveStamina = (_owner.Stat.Stamina >= StaminaConsumeFactor);
-        if (Input.GetMouseButtonDown(0) && _attackTimer > _owner.Stat.AttackCoolTime && haveStamina)
+        if (Input.GetMouseButtonDown(0) && _attackTimer > _owner.Stat.AttackCoolTime && haveStamina && !_moveAbility.IsJumping())
         {
             _owner.Stat.Stamina -= StaminaConsumeFactor;
-            _owner.PhotonView.RPC(nameof(PlayAttackAnimation), RpcTarget.All, Random.Range(1, 4));
+            _owner.PhotonView.RPC(nameof(PlayAttackAnimation), RpcTarget.All, UnityEngine.Random.Range(1, 4));
             // RpcTarget.All : 모두에게
             // RpcTarget.Others : 나자신 제외 모두에게
             // RpcTarget.Master : 방장에게만
             _attackTimer = 0;
         }
+        if (Input.GetMouseButtonDown(0) && _moveAbility.IsJumping() && haveStamina)
+        {
+            _owner.Stat.Stamina -= StaminaConsumeFactor;
+            _owner.PhotonView.RPC(nameof(PlayJumpAttack), RpcTarget.All);
+        }
     }
-
+    [PunRPC]
+    public void PlayJumpAttack()
+    {
+        _animator.SetTrigger("JumpAttack");
+    }
     [PunRPC]
     public void PlayAttackAnimation(int index)
     {

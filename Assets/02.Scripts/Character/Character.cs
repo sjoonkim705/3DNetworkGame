@@ -19,9 +19,9 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     public Stat Stat;
     public State State { get; private set; } = State.Alive;
     public PhotonView PhotonView { get; private set; }
-
-    private Vector3 _recievedPosition;
-    private Quaternion _recievedRotation;
+    public float RespawnTime = 5f;
+   // private Vector3 _recievedPosition;
+   // private Quaternion _recievedRotation;
     private Weapon _weapon;
     private CinemachineImpulseSource _impulseSource;
     private GameObject _damageScreen;
@@ -59,7 +59,7 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P)) // For death Test
         {
             //  ShowDamageEffectUI();
             Damaged(500, 1234);
@@ -106,11 +106,14 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         }
 
         Stat.Health -= amount;
+        StartCoroutine(_modelMovement.ShakeCharacter_Coroutine());
         if (PhotonView.IsMine)
         {
-            PhotonNetwork.Instantiate("DamageEffect", _weapon.transform.position, Quaternion.identity);
+            if (actorNumber > 0)
+            {
+                PhotonNetwork.Instantiate("DamageEffect", _weapon.transform.position, Quaternion.identity);
+            }
             ShowDamageEffectUI();
-            StartCoroutine(_modelMovement.ShakeCharacter_Coroutine());
         }
         if (Stat.Health <= 0)
         {
@@ -130,14 +133,12 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     public void Die()
     {
         State = State.Death;
-
-        Debug.Log("Die");
         _animator.SetTrigger("Death");
         GetComponent<CharacterAttackAbility>().InactiveCollider();
         if (PhotonView.IsMine)
         {
             _controller.enabled = false;
-            StartCoroutine(Respawn_Coroutine(5f));
+            StartCoroutine(Respawn_Coroutine(RespawnTime));
         }
     }
     private void OnDeath(int actorNumber)

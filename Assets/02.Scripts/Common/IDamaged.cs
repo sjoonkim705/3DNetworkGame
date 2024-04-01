@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IDamaged
 {
-    public void Damaged(int amount, int actorID)
+    public void Damaged(int amount, int actorNumber)
     {
     }
 }

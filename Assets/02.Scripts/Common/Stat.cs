@@ -67,6 +67,11 @@ public class Stat
     public int Damage;
     public float AttackCoolTime;
 
+    [Header("Jump Stats")]
+    public float JumpPower;
+    public float JumpConsumeStamina;
+
+
     public void Init()
     {
         Health = MaxHealth;

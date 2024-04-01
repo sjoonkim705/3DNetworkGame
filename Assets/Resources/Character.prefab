@@ -1277,12 +1277,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Stat:
     MaxHealth: 50
-    MaxStamina: 50
+    MaxStamina: 100
     MoveSpeed: 5
     RunSpeed: 10
     RotationSpeed: 200
     Damage: 10
     AttackCoolTime: 1
+    JumpPower: 10
+    JumpConsumeStamina: 5
+  RespawnTime: 5
 --- !u!143 &2555112003411158598
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1333,9 +1336,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a981368409d47d4d8ea674ae788b8c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  JumpPower: 3
+  JumpPower: 10
   JumpMaxCount: 2
   StaminaConsumeFactor: 10
+  JumpStaminaConsumeFactor: 20
   StaminaRecoveryFactor: 5
 --- !u!114 &1138608114150288165
 MonoBehaviour:
@@ -1427,15 +1431,18 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Guard
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Death
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Resurrection
+  - Type: 9
+    SynchronizeType: 1
+    Name: JumpAttack
   m_SynchronizeLayers:
   - SynchronizeType: 1
     LayerIndex: 0
-  - SynchronizeType: 0
+  - SynchronizeType: 1
     LayerIndex: 1
 --- !u!114 &718428710983164217
 MonoBehaviour:
@@ -1468,7 +1475,7 @@ MonoBehaviour:
   m_SynchronizePosition: 1
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
-  m_UseLocal: 1
+  m_UseLocal: 0
 --- !u!114 &4938236972349758429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1483,7 +1490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ImpulseDefinition:
     m_ImpulseChannel: 1
-    m_ImpulseShape: 1
+    m_ImpulseShape: 2
     m_CustomImpulseShape:
       serializedVersion: 2
       m_Curve: []
