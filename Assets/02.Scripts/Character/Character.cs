@@ -17,26 +17,55 @@ using static UnityEngine.UI.GridLayoutGroup;
 public class Character : MonoBehaviour, IPunObservable, IDamaged
 {
     public Stat Stat;
+
+
     public State State { get; private set; } = State.Alive;
     public PhotonView PhotonView { get; private set; }
     public float RespawnTime = 5f;
-   // private Vector3 _recievedPosition;
-   // private Quaternion _recievedRotation;
+
+    // private Vector3 _recievedPosition;
+    // private Quaternion _recievedRotation;
     private Weapon _weapon;
     private CinemachineImpulseSource _impulseSource;
     private GameObject _damageScreen;
     private CharacterShakeAbility _modelMovement;
     private Animator _animator;
     private CharacterController _controller;
+    private int _score = 0;
+
+    public int Score
+    {
+        get
+        {
+            return _score;
+
+        }
+        set
+        {
+            _score = value;
+            UI_Score.Instance.RefreshScoreUI();
+            if (value < 0 )
+            {
+                _score = 0;
+
+            }
+            
+
+            
+        }
+    }
+
 
 
     // 데이터 동기화를 위해 데이터 전송 및 수신 기능을 가진 약속
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
-        if (PhotonView.IsMine)
+        if (PhotonView.IsMine)    // let all UI classes link to this Character class
         {
             UI_CharacterStat.Instance.MyCharacter = this;
+            UI_Score.Instance.Character = this;
+
             Stat.OnHealthChanged += UI_CharacterStat.Instance.RefreshHealthUI;
             Stat.OnStaminaChanged += UI_CharacterStat.Instance.RefreshStaminaUI;
             Stat.Init();
@@ -52,6 +81,7 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         _damageScreen = UI_CharacterStat.Instance.DamageScreen.gameObject;
         _modelMovement = GetComponent<CharacterShakeAbility>();
         _animator = GetComponent<Animator>();
+        Score = 0;
 
         SetRandomPointAndRotation();
     }
@@ -139,9 +169,8 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         GetComponent<CharacterAttackAbility>().InactiveCollider();
         if (PhotonView.IsMine)
         {
-            ItemObjectFactory.Instance.RequestCreate(ItemType.HealthPotion, transform.position);
-            ItemObjectFactory.Instance.RequestCreate(ItemType.StaminaPotion, transform.position);
-
+            /*            ItemObjectFactory.Instance.RequestCreate(ItemType.HealthPotion, transform.position);
+                        ItemObjectFactory.Instance.RequestCreate(ItemType.StaminaPotion, transform.position);*/
             _controller.enabled = false;
             StartCoroutine(Respawn_Coroutine(RespawnTime));
         }
@@ -164,11 +193,13 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
 
     private IEnumerator Respawn_Coroutine(float respawnTime)
     {
-        yield return new WaitForSeconds(respawnTime);
-
+        yield return new WaitForSeconds(respawnTime / 2f);
+        ItemObjectFactory.Instance.RequestCreatebyRandomProbablity(transform.position);
+        yield return new WaitForSeconds(respawnTime / 2f);
         SetRandomPointAndRotation();
+
+        PhotonView.RPC(nameof(Resurrect), RpcTarget.All);
         _controller.enabled = true;
-        PhotonView.RPC(nameof(Resurrect),RpcTarget.All);
     }
     [PunRPC]
     private void Resurrect()

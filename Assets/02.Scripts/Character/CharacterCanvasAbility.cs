@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class CharacterCanvasAbility : CharacterAbility
 {
-    //protected Character _owner { get; private set; }
     public Canvas Canvas;
     public Text NicknameTextUI;
     public Slider HealthSlider;

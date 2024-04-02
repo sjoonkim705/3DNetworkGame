@@ -27,6 +27,28 @@ public class ItemObjectFactory : MonoBehaviourPun
         Instance = this;
     }
 
+    public void RequestCreatebyRandomProbablity(Vector3 position)
+    {
+        // 7 점수 2 체력 1 스테미나
+        int randomFactor = Random.Range(0, 10); // 0~9
+        if (randomFactor >= 9 )
+        {
+            RequestCreate(ItemType.StaminaPotion, position);
+        }
+        else if (randomFactor >= 7 ) 
+        {
+            RequestCreate(ItemType.HealthPotion, position);
+        }
+        else
+        {
+            int randomObjectNumber = Random.Range(3, 6);
+            for (int i = 0; i < randomObjectNumber; i++)
+            {
+                RequestCreate(ItemType.ScorePotion, position);
+            }
+        }
+
+    }
     public void RequestCreate(ItemType type, Vector3 position)
     {
         if (PhotonNetwork.IsMasterClient)
@@ -42,7 +64,7 @@ public class ItemObjectFactory : MonoBehaviourPun
     [PunRPC]
     private void Create(ItemType type, Vector3 position)
     {
-        Vector3 dropPos = position + new Vector3(0, 0.5f, 0f) + UnityEngine.Random.insideUnitSphere;
+        Vector3 dropPos = position + new Vector3(0, 0.5f, 0f);
         PhotonNetwork.InstantiateRoomObject(type.ToString(), dropPos, Quaternion.identity);
     }
 

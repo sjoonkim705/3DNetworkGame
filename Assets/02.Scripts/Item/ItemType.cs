@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum ItemType
 {
-    HealthPotion,
-    StaminaPotion,
+    HealthPotion = 0,
+    StaminaPotion = 1,
+    ScorePotion = 2
 
 }
