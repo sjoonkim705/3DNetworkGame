@@ -44,10 +44,19 @@ public class ItemObjectFactory : MonoBehaviourPun
             int randomObjectNumber = Random.Range(3, 6);
             for (int i = 0; i < randomObjectNumber; i++)
             {
-                RequestCreate(ItemType.ScorePotion, position);
+                RequestCreate(ItemType.ScoreGem, position);
             }
         }
 
+    }
+    public ItemObject MasterCreate(ItemType type, Vector3 position)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return null;
+        }
+
+        return Create(type, position);
     }
     public void RequestCreate(ItemType type, Vector3 position)
     {
@@ -62,10 +71,12 @@ public class ItemObjectFactory : MonoBehaviourPun
     }
 
     [PunRPC]
-    private void Create(ItemType type, Vector3 position)
+    private ItemObject Create(ItemType type, Vector3 position)
     {
         Vector3 dropPos = position + new Vector3(0, 0.5f, 0f);
-        PhotonNetwork.InstantiateRoomObject(type.ToString(), dropPos, Quaternion.identity);
+        GameObject newObject = PhotonNetwork.InstantiateRoomObject(type.ToString(), dropPos, Quaternion.identity);
+        
+        return newObject.GetComponent<ItemObject>();
     }
 
     public void RequestDelete(int viewID)

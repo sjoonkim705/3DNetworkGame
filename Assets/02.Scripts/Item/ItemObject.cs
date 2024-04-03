@@ -40,7 +40,7 @@ public class ItemObject : MonoBehaviourPun
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
@@ -74,9 +74,9 @@ public class ItemObject : MonoBehaviourPun
                     }
                     break;
                 }
-                case ItemType.ScorePotion:
-                    _character.Score += (int)Value; 
-                    _character.GetComponent<CharacterEffectAbility>().RequestPlay((int)ItemType.ScorePotion);
+                case ItemType.ScoreGem:
+                    _character.AddScore((int)Value);
+                    _character.GetComponent<CharacterEffectAbility>().RequestPlay((int)ItemType.ScoreGem);
 
                     break;
             }

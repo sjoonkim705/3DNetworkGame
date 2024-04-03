@@ -54,6 +54,8 @@ MonoBehaviour:
   - Delete
   - PlayItemEffect
   - Play
+  - GenerateItem
+  - FillItemList
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

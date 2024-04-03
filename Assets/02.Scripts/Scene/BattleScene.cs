@@ -27,7 +27,7 @@ public class BattleScene : MonoBehaviour
         Transform selectedSpot = null;
         int randomFactor = Random.Range(0, _spotCount);
         selectedSpot = _respawnSpotList[randomFactor];
-        Debug.Log($"{selectedSpot} / {_respawnSpotList.Count}" );
+        //Debug.Log($"{selectedSpot} / {_respawnSpotList.Count}" );
         return selectedSpot;
     }
     public void TeleportCharacter(GameObject objectToMove, Vector3 respawnSpot)

@@ -1,22 +1,55 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ItemSpawner : MonoBehaviourPun
 {
-    public List<ItemObject> GeneratedObjects;
-    public int GenerateSize = 10;
+    private float _currentTime;
+    private float _createTime;
+    public float MinCreateTime = 10;
+    public float MaxCreateTime = 50;
 
-    private void Awake()
-    {
-        GeneratedObjects = new List<ItemObject>();
-    }
+    private int _createCount;
+    public int MinCreateCount = 10;
+    public int MaxCreateCount = 30;
+
+    private List<ItemObject> _itemList = new List<ItemObject>();
+
+
     private void Start()
     {
+        _createTime = Random.Range(MinCreateTime, MaxCreateTime);
+ 
     }
-    private void InitPool()
+    private void Update()
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
+        _currentTime += Time.deltaTime;
+
+        if (_currentTime >= _createTime)
+        {
+            _itemList.RemoveAll(i => i == null || i.isActiveAndEnabled == false);
+
+            if (_itemList.Count > MaxCreateCount)
+            {
+                return;
+            }
+            _createCount = Random.Range(MinCreateCount, MaxCreateCount);
+            Vector3 randomPosition = transform.position + new Vector3(Random.Range(-10f, 10f), 1f, Random.Range(-10f, 10f));
+            ItemObject itemObject = ItemObjectFactory.Instance.MasterCreate(ItemType.ScoreGem, randomPosition);
+            _itemList.Add(itemObject);
+            itemObject.transform.SetParent(transform);
+
+            _currentTime = 0f;
+
+        }
+        _createTime = Random.Range(MinCreateTime, MaxCreateTime);
 
     }
+
 }

@@ -24,9 +24,12 @@ public class CampFireObject : MonoBehaviour
             _damagedObject = other.GetComponent<IDamaged>();
         }
         PhotonView photonView = other.GetComponent<PhotonView>();
-        if (photonView != null || !photonView.IsMine)
+        if (photonView != null) 
         {
-            return;
+            if (!photonView.IsMine)
+            {
+                return;
+            }
         }
 
     }

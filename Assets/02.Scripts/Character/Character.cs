@@ -4,7 +4,10 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
+
 using static UnityEngine.UI.GridLayoutGroup;
+using UnityEngine.SocialPlatforms.Impl;
 
 [RequireComponent(typeof(CharacterMoveAbility))]
 [RequireComponent(typeof(CharacterRotateAbility))]
@@ -83,18 +86,40 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         _animator = GetComponent<Animator>();
         Score = 0;
 
-        SetRandomPointAndRotation();
-    }
-
-    private void Update()
-    {
-
-        if (Input.GetKeyDown(KeyCode.P)) // For death Test
+        if (!PhotonView.IsMine)
         {
-            //  ShowDamageEffectUI();
-            Damaged(500, 1234);
+            return;
         }
+        SetRandomPointAndRotation();
+
+        // 캐릭터.CustomProperty = Hashtable<string, object>
+
+        Hashtable hashtable = new Hashtable();
+        hashtable.Add("Score", 0);
+        hashtable.Add("KillCount", 0);
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hashtable);
+
     }
+    public void AddScore(int score)
+    {
+        Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
+        myHashTable["Score"] = (int)myHashTable["Score"] + score;
+        PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
+    }
+    public void ResetScore()
+    {
+        Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
+        myHashTable["Score"] = 0;
+        PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
+    }
+    public void AddKillCount()
+    {
+        Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
+        myHashTable["KillCount"] = (int)myHashTable["KillCount"] + 1;
+        PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
+    }
+
+
     [PunRPC]
     public void AddLog(string logMessage)
     {
@@ -169,10 +194,9 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         GetComponent<CharacterAttackAbility>().InactiveCollider();
         if (PhotonView.IsMine)
         {
-            /*            ItemObjectFactory.Instance.RequestCreate(ItemType.HealthPotion, transform.position);
-                        ItemObjectFactory.Instance.RequestCreate(ItemType.StaminaPotion, transform.position);*/
             _controller.enabled = false;
             StartCoroutine(Respawn_Coroutine(RespawnTime));
+            ResetScore();
         }
     }
 
@@ -181,6 +205,18 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         if (actorNumber >= 0)
         {
             string nickname = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).NickName;
+            Hashtable myHashtable = PhotonNetwork.LocalPlayer.CustomProperties;
+            Hashtable opponentHashTable = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).CustomProperties;
+            int gemNumbertoSpread = (int)myHashtable["Score"] / 2;
+
+            opponentHashTable["Score"] = (int)opponentHashTable["Score"] + gemNumbertoSpread;
+            for (int i=0;i< gemNumbertoSpread ; i++)
+            {
+                ItemObjectFactory.Instance.RequestCreate(ItemType.ScoreGem, transform.position);
+            }
+            opponentHashTable["KillCount"] = (int)opponentHashTable["KillCount"] + 1;
+            PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).SetCustomProperties(opponentHashTable);
+
             string logMessage = $"{nickname}님이 {PhotonView.Owner.NickName}을 처치하였습니다.\n";
             PhotonView.RPC(nameof(AddLog), RpcTarget.All, logMessage);
         }
@@ -194,7 +230,7 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private IEnumerator Respawn_Coroutine(float respawnTime)
     {
         yield return new WaitForSeconds(respawnTime / 2f);
-        ItemObjectFactory.Instance.RequestCreatebyRandomProbablity(transform.position);
+        // ItemObjectFactory.Instance.RequestCreatebyRandomProbablity(transform.position);
         yield return new WaitForSeconds(respawnTime / 2f);
         SetRandomPointAndRotation();
 
