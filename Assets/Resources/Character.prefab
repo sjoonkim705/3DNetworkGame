@@ -5623,6 +5623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a7a66bd3841d734d84bad6318f7c837, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _character: {fileID: 0}
   MyCharacterAttackAbility: {fileID: 7057408501519274050}
 --- !u!1 &1678999887973384151
 GameObject:
@@ -31584,6 +31585,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6652375180197038855}
+  - component: {fileID: 5720585467641192907}
   m_Layer: 3
   m_Name: weapon_l
   m_TagString: Untagged
@@ -31607,6 +31609,27 @@ Transform:
   - {fileID: 6427943400146849239}
   m_Father: {fileID: 3174172159714480525}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5720585467641192907
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5030148624191847298}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.19361779, y: 0.82582384, z: 1}
+  m_Center: {x: 0.08342588, y: 0.0870882, z: -0.00000006010659}
 --- !u!1 &5099564298648061724
 GameObject:
   m_ObjectHideFlags: 0

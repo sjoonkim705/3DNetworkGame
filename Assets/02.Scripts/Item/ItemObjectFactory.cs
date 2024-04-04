@@ -44,7 +44,7 @@ public class ItemObjectFactory : MonoBehaviourPun
             int randomObjectNumber = Random.Range(3, 6);
             for (int i = 0; i < randomObjectNumber; i++)
             {
-                RequestCreate(ItemType.ScoreGem, position);
+                RequestCreate(ItemType.ScoreGem10, position);
             }
         }
 

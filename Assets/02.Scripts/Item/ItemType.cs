@@ -6,6 +6,8 @@ public enum ItemType
 {
     HealthPotion = 0,
     StaminaPotion = 1,
-    ScoreGem = 2
+    ScoreGem10,
+    ScoreGem30,
+    ScoreGem50,
 
 }

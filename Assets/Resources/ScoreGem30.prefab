@@ -41,9 +41,9 @@ Light:
   m_GameObject: {fileID: 213385745444949145}
   m_Enabled: 1
   serializedVersion: 10
-  m_Type: 2
+  m_Type: 4
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.95713544, b: 0.49622637, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
@@ -164,7 +164,7 @@ GameObject:
   - component: {fileID: 8755759229866133882}
   - component: {fileID: 5143619000821792007}
   m_Layer: 0
-  m_Name: ScoreGem1_Yellow
+  m_Name: ScoreGem30
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -337,4 +337,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ItemType: 2
-  Value: 3
+  Value: 30

@@ -29,7 +29,7 @@ public class ItemObject : MonoBehaviourPun
         float randomX = Random.Range(-1f, 1f);
         float randomZ = Random.Range(-1f, 1f);
         Vector3 randomDir = new Vector3(randomX, 0, randomZ);
-        Vector3 forceDir = randomDir + Vector3.up;
+        Vector3 forceDir = randomDir + Vector3.up* 2f;
         Rigidbody.AddForce(forceDir, ForceMode.Impulse);
     }
     private void Start()
@@ -74,10 +74,17 @@ public class ItemObject : MonoBehaviourPun
                     }
                     break;
                 }
-                case ItemType.ScoreGem:
-                    _character.AddScore((int)Value);
-                    _character.GetComponent<CharacterEffectAbility>().RequestPlay((int)ItemType.ScoreGem);
-
+                case ItemType.ScoreGem10:
+                    _character.AddPropertyIntValue("Score", (int)Value);
+                    _character.GetComponent<CharacterEffectAbility>().RequestPlay((int)ItemType.ScoreGem10);
+                    break;
+                case ItemType.ScoreGem30:
+                    _character.AddPropertyIntValue("Score", (int)Value);
+                    _character.GetComponent<CharacterEffectAbility>().RequestPlay((int)ItemType.ScoreGem10);
+                    break;
+                case ItemType.ScoreGem50:
+                    _character.AddPropertyIntValue("Score", (int)Value);
+                    _character.GetComponent<CharacterEffectAbility>().RequestPlay((int)ItemType.ScoreGem10);
                     break;
             }
 

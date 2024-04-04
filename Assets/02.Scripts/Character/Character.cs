@@ -35,6 +35,8 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private Animator _animator;
     private CharacterController _controller;
     private int _score = 0;
+    private int _diedPlayerScore = 0;
+
 
     public int Score
     {
@@ -96,28 +98,39 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
 
         Hashtable hashtable = new Hashtable();
         hashtable.Add("Score", 0);
+        Score = (int)hashtable["Score"];
         hashtable.Add("KillCount", 0);
         PhotonNetwork.LocalPlayer.SetCustomProperties(hashtable);
 
     }
-    public void AddScore(int score)
+    [PunRPC]
+    public void AddPropertyIntValue(string key, int value)
     {
         Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
-        myHashTable["Score"] = (int)myHashTable["Score"] + score;
+        myHashTable[key] = (int)myHashTable[key] + value;
+        if (key == "Score")
+        {
+            Score = (int)myHashTable["Score"];
+        }
         PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
     }
-    public void ResetScore()
+    public void SetPropertyIntValue(string key, int value)
     {
         Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
-        myHashTable["Score"] = 0;
+        myHashTable[key] = value;
+        if (key == "Score")
+        {
+            Score = (int)myHashTable["Score"];
+        }
+
         PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
     }
-    public void AddKillCount()
+    public int GetPropertyIntValue(string key, int value)
     {
         Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
-        myHashTable["KillCount"] = (int)myHashTable["KillCount"] + 1;
-        PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
+        return (int)myHashTable[key];
     }
+
 
 
     [PunRPC]
@@ -196,7 +209,7 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         {
             _controller.enabled = false;
             StartCoroutine(Respawn_Coroutine(RespawnTime));
-            ResetScore();
+            SetPropertyIntValue("Score", 0);
         }
     }
 
@@ -205,15 +218,12 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         if (actorNumber >= 0)
         {
             string nickname = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).NickName;
-            Hashtable myHashtable = PhotonNetwork.LocalPlayer.CustomProperties;
             Hashtable opponentHashTable = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).CustomProperties;
-            int gemNumbertoSpread = (int)myHashtable["Score"] / 2;
 
-            opponentHashTable["Score"] = (int)opponentHashTable["Score"] + gemNumbertoSpread;
-            for (int i=0;i< gemNumbertoSpread ; i++)
-            {
-                ItemObjectFactory.Instance.RequestCreate(ItemType.ScoreGem, transform.position);
-            }
+            Hashtable myHashtable = PhotonNetwork.LocalPlayer.CustomProperties;
+            _diedPlayerScore = (int)myHashtable["Score"];
+
+            opponentHashTable["Score"] = (int)opponentHashTable["Score"] + _diedPlayerScore / 2;
             opponentHashTable["KillCount"] = (int)opponentHashTable["KillCount"] + 1;
             PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).SetCustomProperties(opponentHashTable);
 
@@ -230,7 +240,12 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private IEnumerator Respawn_Coroutine(float respawnTime)
     {
         yield return new WaitForSeconds(respawnTime / 2f);
-        // ItemObjectFactory.Instance.RequestCreatebyRandomProbablity(transform.position);
+        ItemObjectFactory.Instance.RequestCreatebyRandomProbablity(transform.position);
+        for (int i = 0; i < _diedPlayerScore / 20 ; i++)
+        {
+            ItemObjectFactory.Instance.RequestCreate(ItemType.ScoreGem10, transform.position);
+        }
+        _diedPlayerScore = 0;
         yield return new WaitForSeconds(respawnTime / 2f);
         SetRandomPointAndRotation();
 

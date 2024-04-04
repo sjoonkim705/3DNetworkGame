@@ -1,7 +1,6 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ItemSpawner : MonoBehaviourPun
@@ -13,7 +12,7 @@ public class ItemSpawner : MonoBehaviourPun
 
     private int _createCount;
     public int MinCreateCount = 10;
-    public int MaxCreateCount = 30;
+    public int MaxCreateCount = 20;
 
     private List<ItemObject> _itemList = new List<ItemObject>();
 
@@ -41,9 +40,30 @@ public class ItemSpawner : MonoBehaviourPun
             }
             _createCount = Random.Range(MinCreateCount, MaxCreateCount);
             Vector3 randomPosition = transform.position + new Vector3(Random.Range(-10f, 10f), 1f, Random.Range(-10f, 10f));
-            ItemObject itemObject = ItemObjectFactory.Instance.MasterCreate(ItemType.ScoreGem, randomPosition);
-            _itemList.Add(itemObject);
-            itemObject.transform.SetParent(transform);
+            int randomGemFactor = Random.Range(0, 100);
+
+            ItemObject itemObject = null;
+
+            if (randomGemFactor <= 85)
+            {
+                itemObject = ItemObjectFactory.Instance.MasterCreate(ItemType.ScoreGem10, randomPosition);
+            }
+            else if (randomGemFactor <= 95)
+            {
+
+                itemObject = ItemObjectFactory.Instance.MasterCreate(ItemType.ScoreGem30, randomPosition);
+            }
+            else
+            {
+
+                itemObject = ItemObjectFactory.Instance.MasterCreate(ItemType.ScoreGem50, randomPosition);
+            }
+
+            if(itemObject != null)
+            {
+                _itemList.Add(itemObject);
+                itemObject.transform.SetParent(transform);
+            }
 
             _currentTime = 0f;
 
