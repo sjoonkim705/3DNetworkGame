@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine.SceneManagement;
 
 // 역할 : 포톤 서버 연결 관리자
 
 public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버 이벤트(콜백 함수)를 받는다.
 {
+    public bool HasMaleCharacterSelected = false;
     public static PhotonManager instance {  get; private set; }
     private void Awake()
-    { 
+    {
+        DontDestroyOnLoad(gameObject);
         instance = this;
     }
 
@@ -70,7 +73,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
         roomOptions.IsVisible = true; // 로비에서 방 목록에 노출할 것인가?
         roomOptions.IsOpen = true;
 
-        PhotonNetwork.JoinOrCreateRoom("test",roomOptions, TypedLobby.Default);
+       // PhotonNetwork.JoinOrCreateRoom("test",roomOptions, TypedLobby.Default);
     }
     public override void OnCreatedRoom()
     {
@@ -84,7 +87,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks //PUN의 다양한 서버
         Debug.Log($"RoomName: {PhotonNetwork.CurrentRoom.Name}");
         Debug.Log($"Current Players: {PhotonNetwork.CurrentRoom.PlayerCount}");
         // PhotonNetwork.Instantiate("Character", BattleScene.Instance.GetRandomRespawnSpot().position, Quaternion.Euler(randomAngle));
-        PhotonNetwork.Instantiate("Character", Vector3.zero, Quaternion.identity);
+        // PhotonNetwork.Instantiate("Character", Vector3.zero, Quaternion.identity);
+        PhotonNetwork.LoadLevel("BattleScene");
+        
     }
     public override void OnCreateRoomFailed(short returnCode, string message)
     {

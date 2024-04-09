@@ -9,10 +9,11 @@ public class UI_PlayerRankingSlot : MonoBehaviour
     public Text NicknameTextUI;
     public Text KillCountTextUI;
     public Text ScoreTextUI;
+    public int Rank;
 
     public void Set(Player player)
     {
-        RankingTextUI.text = "1";
+        RankingTextUI.text = Rank.ToString();
         NicknameTextUI.text = player.NickName;
         if (player.CustomProperties != null)
         {

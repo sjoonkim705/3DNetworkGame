@@ -48,15 +48,13 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
         set
         {
             _score = value;
-            UI_Score.Instance.RefreshScoreUI();
+            //UI_Score.Instance.RefreshScoreUI();
             if (value < 0 )
             {
                 _score = 0;
 
             }
-            
-
-            
+           
         }
     }
 
@@ -66,6 +64,19 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
+
+    }
+
+
+    private void Start()
+    {
+        _controller = GetComponent<CharacterController>();
+        _impulseSource = GetComponent<CinemachineImpulseSource>();
+        _damageScreen = UI_CharacterStat.Instance.DamageScreen.gameObject;
+        _modelMovement = GetComponent<CharacterShakeAbility>();
+        _animator = GetComponent<Animator>();
+        Score = 0;
+
         if (PhotonView.IsMine)    // let all UI classes link to this Character class
         {
             UI_CharacterStat.Instance.MyCharacter = this;
@@ -76,17 +87,6 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
             Stat.Init();
         }
         _weapon = GetComponentInChildren<Weapon>();
-    }
-  
-
-    private void Start()
-    {
-        _controller = GetComponent<CharacterController>();
-        _impulseSource = GetComponent<CinemachineImpulseSource>();
-        _damageScreen = UI_CharacterStat.Instance.DamageScreen.gameObject;
-        _modelMovement = GetComponent<CharacterShakeAbility>();
-        _animator = GetComponent<Animator>();
-        Score = 0;
 
         if (!PhotonView.IsMine)
         {
@@ -125,7 +125,7 @@ public class Character : MonoBehaviour, IPunObservable, IDamaged
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(myHashTable);
     }
-    public int GetPropertyIntValue(string key, int value)
+    public int GetPropertyIntValue(string key)
     {
         Hashtable myHashTable = PhotonNetwork.LocalPlayer.CustomProperties;
         return (int)myHashTable[key];

@@ -51,6 +51,7 @@ public class UI_PlayerRanking : MonoBehaviourPunCallbacks
         }
         for (int i = 0; i < playerCount; i++)
         {
+            Slots[i].Rank = i + 1;
             Slots[i].gameObject.SetActive(true);
             Slots[i].Set(playerList[i]);
         }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Score : MonoBehaviourPunCallbacks
+public class UI_Score : MonoBehaviour
 {
     public static UI_Score Instance { get; private set; }
     public Character Character;
@@ -16,6 +16,10 @@ public class UI_Score : MonoBehaviourPunCallbacks
         Instance = this;
     }
 
+    private void Update()
+    {
+        RefreshScoreUI();
+    }
     public void RefreshScoreUI()
     {
         ScoreText.text = $"{Character.Score.ToString():D3}";

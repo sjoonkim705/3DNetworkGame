@@ -21,6 +21,8 @@ public class CharacterAttackAbility : CharacterAbility
     private float _attackTimer = 0;
     private Animator _animator;
     public Collider WeaponCollider;
+    public GameObject WeaponObject;
+
     public TrailRenderer WeaponTrail;
     private CharacterMoveAbility _moveAbility;
 
@@ -28,7 +30,14 @@ public class CharacterAttackAbility : CharacterAbility
     private List<IDamaged> _damagedList = new List<IDamaged>();
 
 
+    public void RefreshWeaponScale()
+    {
+        int score = _owner.GetPropertyIntValue("Score");
+        float scale = 1f;
+        scale += (_owner.Score / 1000) * 0.1f;
 
+
+    }
     void Start()
     {
         _animator = GetComponent<Animator>();
@@ -84,6 +93,8 @@ public class CharacterAttackAbility : CharacterAbility
             return;
         }
         IDamaged damageableObject = other.GetComponent<IDamaged>();
+        Debug.Log(damageableObject);
+
         if (damageableObject != null)
         {
             if (_damagedList.Contains(damageableObject))

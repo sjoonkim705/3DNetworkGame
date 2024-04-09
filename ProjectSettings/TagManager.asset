@@ -8,6 +8,9 @@ TagManager:
   - MinimapCamera
   - RespawnSpots
   - ItemSpawner
+  - BearSpawnPoint
+  - PatrolPoint
+  - BearHitCollider
   layers:
   - Default
   - TransparentFX
@@ -16,7 +19,7 @@ TagManager:
   - Water
   - UI
   - Environment
-  - 
+  - PlayerDetect
   - 
   - 
   - 
